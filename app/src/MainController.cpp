@@ -186,7 +186,7 @@ void MainController::update_light_controls() {
         m_spot_intensity -= 1.0f * dt;
         }
     m_spot_intensity = glm::clamp(m_spot_intensity, 0.0f, 4.0f);
-    
+
 }
 
 } // namespace app
