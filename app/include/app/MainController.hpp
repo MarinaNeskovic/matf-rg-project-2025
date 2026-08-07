@@ -26,7 +26,7 @@ private:
     void set_light_uniforms(engine::resources::Shader* shader);
 
     void  draw_piano();
-    float m_piano_scale{1.0f};
+    float m_piano_scale{1.6f};
     void draw_candles();
     float m_candle_scale{1.0f};
 

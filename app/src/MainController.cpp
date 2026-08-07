@@ -10,7 +10,7 @@ void MainController::initialize() {
 
     auto camera = engine::core::Controller::get<
         engine::graphics::GraphicsController>()->camera();
-    camera->Position = glm::vec3(0.0f, 3.0f, 10.0f);
+    camera->Position = glm::vec3(0.0f, 3.0f, 15.0f);
 }
 bool MainController::loop() {
     const auto platform =
@@ -97,9 +97,10 @@ void MainController::draw_piano() {
     shader->set_mat4("view", graphics->camera()->view_matrix());
     shader->set_mat4(
     "model",
-    translate(glm::mat4(1.0f), glm::vec3(-6.9f, -1.15f, -6.05f))
+    translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f))
     * scale(glm::mat4(1.0f), glm::vec3(m_piano_scale))
-);
+    * translate(glm::mat4(1.0f), glm::vec3(-7.45f, 0.0f, -5.99f))
+    );
     piano->draw(shader);
 }
 
