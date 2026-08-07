@@ -1,17 +1,17 @@
 {
   "resources": {
     "models": {
-      "lighthouse": {
-        "path": "lighthouse/lighthouse.obj",
-        "flip_uvs": true
-      },
-      "rock": {
-        "path": "rock/PUSHILIN_rock.obj",
+      "piano": {
+        "path": "piano/piano_no_floor.obj",
         "flip_uvs": false
       },
-      "boat": {
-        "path": "boat/CUPIC_ROWBOAT.obj",
-        "flip_uvs": true
+      "candle": {
+        "path": "candle/candle.obj",
+        "flip_uvs": false
+      },
+      "library": {
+        "path": "library/library.obj",
+        "flip_uvs": false
       }
     }
   },

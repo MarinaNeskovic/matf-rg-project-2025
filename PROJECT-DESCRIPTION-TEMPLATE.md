@@ -1,47 +1,42 @@
-# {NAME-OF-THE-PROJECT}
+# Piano in an Abandoned Concert Hall
 
-{INDEX} - {STUDENT-FULL-NAME}  
-{PROJECT DESCRIPTION}
+mi22184 - Marina Neskovic
+
+An abandoned concert hall, at night. At the center of the scene is a grand
+piano, surrounded by hundreds of candles whose flames light the space with
+a warm glow. Dramatic spotlight beams fall from above, cutting through a
+faint haze, as if someone had just left the stage mid-performance.
 
 ## Controls
 
-{BUTTON1} -> {ACTION1}  
-{BUTTON2} -> {ACTION2}  
-...  
-{BUTTONN} -> {ACTIONN}
+W, A, S, D -> move camera  
+Mouse -> rotate camera  
+Scroll -> zoom  
+F -> toggle flashlight / spotlight  
+ESC -> exit application
 
 ## Features
 
 ### Fundamental:
-
-[ ] Model with lighting
-[ ] Two types of lighting with customizable colors and movement through GUI or ACTIONS
-[ ] {ACTION_X} --- AFTER_M_SECONDS---Triggers---> {EVENT_A} ---> AFTER_N_SECONDS---Triggers---> {EVENT_B}
+- [x] Model with lighting
+- [x] Two types of lighting with customizable colors and movement through GUI or ACTIONS
+- [ ] Player approaches the piano -> AFTER 2 SECONDS -> Triggers -> spotlight intensifies and changes color -> AFTER 3 SECONDS -> Triggers -> candles around the piano light up one by one
 
 ### Group A:
-
-[ ] Frame-buffers with post-processing   
-[ ] Off-screen Anti-Aliasing  
-[ ] Parallax Mapping
-[ ] Bloom with the use of HDR
+- [ ] Bloom with the use of HDR
 
 ### Group B:
-[ ] Deferred Shading  
-[ ] Point Shadows  
-[ ] SSAO
+- [ ] Point Shadows
 
 ### Engine improvement:
-
-[ ] ...
+- [ ] ...
 
 ## Models:
-
-[link1]   
-[link2]
+[Piano](https://poly.pizza/m/1YoE664mJTd)  
+[Candle](https://poly.pizza/m/aH83BlSFxJu)
 
 ## Textures
+(included with the models)
 
-[link1]  
-[link2]
-
-{OTHER-RESOURCES}
+## Skybox
+Custom-generated night sky (no third-party assets)

@@ -22,16 +22,15 @@ private:
     void begin_draw() override;
     void draw() override;
     void end_draw() override;
-
-    void draw_lighthouse();
-    void draw_rock();
-    void draw_boat();
     void update_camera();
     void set_light_uniforms(engine::resources::Shader* shader);
 
-    float m_lighthouse_scale{1.0f};
-    float m_rock_scale{1.0f};
-    float m_boat_scale{1.0f};
+    void  draw_piano();
+    float m_piano_scale{1.0f};
+    void draw_candles();
+    float m_candle_scale{1.0f};
+
+    void draw_library();
 };
 
 } // namespace app
