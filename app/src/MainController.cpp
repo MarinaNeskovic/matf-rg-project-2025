@@ -1,11 +1,16 @@
 #include <app/MainController.hpp>
 #include <engine/core/Engine.hpp>
 #include <engine/graphics/GraphicsController.hpp>
+#include <spdlog/spdlog.h>
 namespace app {
 void MainController::initialize() {
     engine::graphics::OpenGL::enable_depth_testing();
     engine::core::Controller::get<
         engine::platform::PlatformController>()->set_enable_cursor(false);
+
+    auto camera = engine::core::Controller::get<
+        engine::graphics::GraphicsController>()->camera();
+    camera->Position = glm::vec3(0.0f, 3.0f, 10.0f);
 }
 bool MainController::loop() {
     const auto platform =
@@ -18,6 +23,7 @@ bool MainController::loop() {
 }
 void MainController::update() {
     update_camera();
+    update_event_chain();
 }
 void MainController::begin_draw() {
     engine::graphics::OpenGL::clear_buffers();
@@ -32,19 +38,23 @@ void MainController::end_draw() {
 }
 void MainController::set_light_uniforms(engine::resources::Shader* shader) {
     shader->set_vec3("moon_direction", glm::vec3(-0.3f, -1.0f, -0.2f));
-    shader->set_vec3("moon_color", glm::vec3(1.2f, 1.2f, 1.3f));
+    shader->set_vec3("moon_color", glm::vec3(0.85f, 0.85f, 0.9f));
 
+    float lamp_boost = (m_event_stage >= 2) ? 1.6f : 1.0f;
     shader->set_vec3("lamp_position", glm::vec3(0.0f, 4.0f, 0.0f));
-    shader->set_vec3("lamp_color", glm::vec3(2.5f, 2.2f, 1.7f));
+    shader->set_vec3("lamp_color", glm::vec3(1.3f, 1.1f, 0.85f) * lamp_boost);
 
+    glm::vec3 spot_base = (m_event_stage >= 1)
+        ? glm::vec3(1.4f, 1.2f, 1.5f)
+        : glm::vec3(0.5f, 0.5f, 0.6f);
     shader->set_vec3("spot_position", glm::vec3(0.0f, 8.0f, 0.0f));
     shader->set_vec3("spot_direction", glm::vec3(0.0f, -1.0f, 0.0f));
-    shader->set_vec3("spot_color", glm::vec3(1.8f, 1.9f, 2.3f));
+    shader->set_vec3("spot_color", spot_base);
     shader->set_float("spot_cutoff", glm::cos(glm::radians(25.0f)));
     shader->set_float("spot_outer_cutoff", glm::cos(glm::radians(40.0f)));
 
     shader->set_vec3("fill_position", glm::vec3(-3.0f, 1.5f, -2.0f));
-    shader->set_vec3("fill_color", glm::vec3(0.8f, 0.8f, 0.9f));
+    shader->set_vec3("fill_color", glm::vec3(0.4f, 0.4f, 0.45f));
 }
 
 void MainController::update_camera() {
@@ -86,10 +96,10 @@ void MainController::draw_piano() {
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()->view_matrix());
     shader->set_mat4(
-        "model",
-        translate(glm::mat4(1.0f), glm::vec3(-6.9f, -1.05f, -6.05f))
-        * scale(glm::mat4(1.0f), glm::vec3(m_piano_scale))
-    );
+    "model",
+    translate(glm::mat4(1.0f), glm::vec3(-6.9f, -1.15f, -6.05f))
+    * scale(glm::mat4(1.0f), glm::vec3(m_piano_scale))
+);
     piano->draw(shader);
 }
 
@@ -134,4 +144,21 @@ void MainController::draw_library() {
     shader->set_mat4("model", glm::mat4(1.0f));
     library->draw(shader);
 }
+
+void MainController::update_event_chain() {
+    auto platform =
+        engine::core::Controller::get<engine::platform::PlatformController>();
+    m_time_elapsed += platform->dt();
+
+    if (m_event_stage == 0 && m_time_elapsed >= 3.0f) {
+        m_event_stage = 1;
+        spdlog::info("Event chain: reflektor se pojacava");
+    }
+    if (m_event_stage == 1 && m_time_elapsed >= 6.0f) {
+        m_event_stage = 2;
+        spdlog::info("Event chain: sveće dodatno zasjaje");
+    }
+}
+
+
 } // namespace app

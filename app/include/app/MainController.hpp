@@ -31,6 +31,10 @@ private:
     float m_candle_scale{1.0f};
 
     void draw_library();
+
+    void update_event_chain();
+    float m_time_elapsed{0.0f};
+    int m_event_stage{0};
 };
 
 } // namespace app

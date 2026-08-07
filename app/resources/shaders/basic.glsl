@@ -67,7 +67,7 @@ void main() {
     float fill_attenuation = 1.0 / (1.0 + 0.09 * fill_dist + 0.032 * fill_dist * fill_dist);
     vec3 fill_result = fill_diff * fill_color * base_color * fill_attenuation;
 
-    vec3 ambient = 0.45 * base_color;
+    vec3 ambient = 0.35 * base_color;
 
     FragColor = vec4(ambient + moon_result + lamp_result + spot_result + fill_result, 1.0);
 }
