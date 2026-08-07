@@ -35,6 +35,10 @@ private:
     void update_event_chain();
     float m_time_elapsed{0.0f};
     int m_event_stage{0};
+
+    void update_light_controls();
+    float m_lamp_intensity{1.0f};
+    float m_spot_intensity{1.0f};
 };
 
 } // namespace app

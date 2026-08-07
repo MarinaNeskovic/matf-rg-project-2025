@@ -24,6 +24,7 @@ bool MainController::loop() {
 void MainController::update() {
     update_camera();
     update_event_chain();
+    update_light_controls();
 }
 void MainController::begin_draw() {
     engine::graphics::OpenGL::clear_buffers();
@@ -42,14 +43,14 @@ void MainController::set_light_uniforms(engine::resources::Shader* shader) {
 
     float lamp_boost = (m_event_stage >= 2) ? 1.6f : 1.0f;
     shader->set_vec3("lamp_position", glm::vec3(0.0f, 4.0f, 0.0f));
-    shader->set_vec3("lamp_color", glm::vec3(1.3f, 1.1f, 0.85f) * lamp_boost);
+    shader->set_vec3("lamp_color", glm::vec3(1.3f, 1.1f, 0.85f) * lamp_boost * m_lamp_intensity);
 
     glm::vec3 spot_base = (m_event_stage >= 1)
         ? glm::vec3(1.4f, 1.2f, 1.5f)
         : glm::vec3(0.5f, 0.5f, 0.6f);
     shader->set_vec3("spot_position", glm::vec3(0.0f, 8.0f, 0.0f));
     shader->set_vec3("spot_direction", glm::vec3(0.0f, -1.0f, 0.0f));
-    shader->set_vec3("spot_color", spot_base);
+    shader->set_vec3("spot_color", spot_base * m_spot_intensity);
     shader->set_float("spot_cutoff", glm::cos(glm::radians(25.0f)));
     shader->set_float("spot_outer_cutoff", glm::cos(glm::radians(40.0f)));
 
@@ -161,5 +162,31 @@ void MainController::update_event_chain() {
     }
 }
 
+void MainController::update_light_controls() {
+    auto platform =
+        engine::core::Controller::get<engine::platform::PlatformController>();
+    float dt = platform->dt();
+
+    if (platform->key(engine::platform::KEY_UP).state()
+        == engine::platform::Key::State::Pressed) {
+        m_lamp_intensity += 1.0f * dt;
+        }
+    if (platform->key(engine::platform::KEY_DOWN).state()
+        == engine::platform::Key::State::Pressed) {
+        m_lamp_intensity -= 1.0f * dt;
+        }
+    m_lamp_intensity = glm::clamp(m_lamp_intensity, 0.1f, 4.0f);
+
+    if (platform->key(engine::platform::KEY_RIGHT).state()
+        == engine::platform::Key::State::Pressed) {
+        m_spot_intensity += 1.0f * dt;
+        }
+    if (platform->key(engine::platform::KEY_LEFT).state()
+        == engine::platform::Key::State::Pressed) {
+        m_spot_intensity -= 1.0f * dt;
+        }
+    m_spot_intensity = glm::clamp(m_spot_intensity, 0.0f, 4.0f);
+    
+}
 
 } // namespace app
