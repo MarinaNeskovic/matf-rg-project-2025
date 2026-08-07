@@ -19,4 +19,4 @@ _deps
 engine/test/app/test-app
 app/APP
 .venv
-engine/libs/glfw/src
+engine/libs/glfw/srcbuild/

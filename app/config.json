@@ -1,9 +1,17 @@
 {
   "resources": {
     "models": {
-      "backpack": {
-        "path": "backpack/backpack.obj",
+      "lighthouse": {
+        "path": "lighthouse/lighthouse.obj",
+        "flip_uvs": true
+      },
+      "rock": {
+        "path": "rock/PUSHILIN_rock.obj",
         "flip_uvs": false
+      },
+      "boat": {
+        "path": "boat/CUPIC_ROWBOAT.obj",
+        "flip_uvs": true
       }
     }
   },

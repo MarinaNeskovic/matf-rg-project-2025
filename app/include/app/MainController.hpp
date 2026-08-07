@@ -23,10 +23,15 @@ private:
     void draw() override;
     void end_draw() override;
 
-    void draw_backpack();
+    void draw_lighthouse();
+    void draw_rock();
+    void draw_boat();
     void update_camera();
+    void set_light_uniforms(engine::resources::Shader* shader);
 
-    float m_backpack_scale{1.0f};
+    float m_lighthouse_scale{1.0f};
+    float m_rock_scale{1.0f};
+    float m_boat_scale{1.0f};
 };
 
 } // namespace app

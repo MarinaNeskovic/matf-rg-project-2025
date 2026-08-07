@@ -1,0 +1,9 @@
+[  2%] Built target glad
+[  4%] Built target stb
+[ 13%] Built target spdlog
+[ 65%] Built target glfw
+[ 74%] Built target imgui
+[ 91%] Built target matf-rg-engine
+Consolidate compiler generated dependencies of target APP
+[ 96%] Built target test-app
+[100%] Built target APP

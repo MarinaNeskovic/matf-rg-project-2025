@@ -30,7 +30,9 @@ void MainController::begin_draw() {
 }
 
 void MainController::draw() {
-    draw_backpack();
+    draw_lighthouse();
+    draw_boat();
+    draw_rock();
 }
 
 void MainController::end_draw() {
@@ -38,25 +40,62 @@ void MainController::end_draw() {
         engine::platform::PlatformController>()->swap_buffers();
 }
 
-void MainController::draw_backpack() {
+void MainController::draw_lighthouse() {
     auto graphics =
-        engine::core::Controller::get<engine::graphics::GraphicsController>();
-
+    engine::core::Controller::get<engine::graphics::GraphicsController>();
     auto resources =
         engine::core::Controller::get<engine::resources::ResourcesController>();
-
     auto shader = resources->shader("basic");
-    auto backpack = resources->model("backpack");
-
+    auto lighthouse = resources->model("lighthouse");
     shader->use();
+    set_light_uniforms(shader);
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()->view_matrix());
     shader->set_mat4(
         "model",
-        scale(glm::mat4(1.0f), glm::vec3(m_backpack_scale))
+        scale(glm::mat4(1.0f), glm::vec3(m_lighthouse_scale))
     );
+    lighthouse->draw(shader);
 
-    backpack->draw(shader);
+}
+
+void MainController::draw_boat() {
+    auto graphics =
+        engine::core::Controller::get<engine::graphics::GraphicsController>();
+    auto resources =
+        engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto shader = resources->shader("basic");
+    auto boat = resources->model("boat");
+    shader->use();
+    set_light_uniforms(shader);
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
+    shader->set_mat4(
+        "model",
+        translate(glm::mat4(1.0f), glm::vec3(-1.0f, -0.3f, 3.0f))
+* scale(glm::mat4(1.0f), glm::vec3(0.003f))
+    );
+    boat->draw(shader);
+}
+
+void MainController::draw_rock() {
+    auto graphics =
+        engine::core::Controller::get<engine::graphics::GraphicsController>();
+    auto resources =
+        engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto shader = resources->shader("basic");
+    auto rock = resources->model("rock");
+    shader->use();
+    set_light_uniforms(shader);
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
+    shader->set_mat4(
+        "model",
+        translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, 1.0f))
+        * scale(glm::mat4(1.0f), glm::vec3(m_rock_scale))
+
+    );
+    rock->draw(shader);
 }
 
 void MainController::update_camera() {
@@ -92,6 +131,14 @@ void MainController::update_camera() {
     auto mouse = platform->mouse();
     camera->rotate_camera(mouse.dx, mouse.dy);
     camera->zoom(mouse.scroll);
+}
+
+void MainController::set_light_uniforms(engine::resources::Shader* shader) {
+    shader->set_vec3("moon_direction", glm::vec3(-0.3f, -1.0f, -0.2f));
+    shader->set_vec3("moon_color", glm::vec3(0.25f, 0.3f, 0.45f));
+
+    shader->set_vec3("lamp_position", glm::vec3(0.0f, 3.0f, 0.0f));
+    shader->set_vec3("lamp_color", glm::vec3(1.0f, 0.85f, 0.5f));
 }
 
 } // namespace app
