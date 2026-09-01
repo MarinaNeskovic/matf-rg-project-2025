@@ -39,6 +39,17 @@ private:
     void update_light_controls();
     float m_lamp_intensity{1.0f};
     float m_spot_intensity{1.0f};
+
+    void draw_scene_objects();
+    void init_bloom_buffers();
+
+    uint32_t m_hdr_fbo{0};
+    uint32_t m_scene_color_tex{0};
+    uint32_t m_bright_color_tex{0};
+    uint32_t m_pingpong_fbo[2]{0, 0};
+    uint32_t m_pingpong_tex[2]{0, 0};
+
+    float m_animation_time{0.0f};
 };
 
 } // namespace app

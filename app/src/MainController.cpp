@@ -11,6 +11,8 @@ void MainController::initialize() {
     auto camera = engine::core::Controller::get<
         engine::graphics::GraphicsController>()->camera();
     camera->Position = glm::vec3(0.0f, 3.0f, 15.0f);
+
+    init_bloom_buffers();
 }
 bool MainController::loop() {
     const auto platform =
@@ -25,15 +27,64 @@ void MainController::update() {
     update_camera();
     update_event_chain();
     update_light_controls();
+
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    m_animation_time += platform->dt();
 }
 void MainController::begin_draw() {
     engine::graphics::OpenGL::clear_buffers();
 }
-void MainController::draw() {
+void MainController::draw_scene_objects() {
     draw_library();
     draw_piano();
     draw_candles();
 }
+
+void MainController::draw() {
+    auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    int width = platform->window()->width();
+    int height = platform->window()->height();
+
+    // 1. Crtaj scenu u HDR framebuffer (dva izlaza: puna scena + svetli delovi)
+    engine::graphics::OpenGL::bind_framebuffer(m_hdr_fbo);
+    engine::graphics::OpenGL::clear_buffers();
+    draw_scene_objects();
+
+    // 2. Izdvoji svetle delove iz scene teksture
+    auto bright_shader = resources->shader("bright_extract");
+    engine::graphics::OpenGL::bind_framebuffer(m_pingpong_fbo[0]);
+    bright_shader->use();
+    bright_shader->set_int("scene_texture", 0);
+    engine::graphics::OpenGL::bind_texture_unit(0, m_bright_color_tex);
+    engine::graphics::OpenGL::draw_screen_quad();
+
+    // 3. Gausovsko zamucenje - naizmenicno horizontalno/vertikalno, 10 prolaza
+    auto blur_shader = resources->shader("blur");
+    bool horizontal = true;
+    int blur_passes = 10;
+    blur_shader->use();
+    for (int i = 0; i < blur_passes; ++i) {
+        engine::graphics::OpenGL::bind_framebuffer(m_pingpong_fbo[horizontal ? 1 : 0]);
+        blur_shader->set_bool("horizontal", horizontal);
+        engine::graphics::OpenGL::bind_texture_unit(0, i == 0 ? m_pingpong_tex[0] : m_pingpong_tex[!horizontal]);
+        engine::graphics::OpenGL::draw_screen_quad();
+        horizontal = !horizontal;
+    }
+
+    // 4. Spoji originalnu scenu sa zamucenim sjajem, nacrtaj na ekran
+    engine::graphics::OpenGL::bind_framebuffer(0);
+    engine::graphics::OpenGL::clear_buffers();
+    auto combine_shader = resources->shader("bloom_combine");
+    combine_shader->use();
+    combine_shader->set_int("scene_texture", 0);
+    combine_shader->set_int("bloom_texture", 1);
+    combine_shader->set_float("exposure", 1.0f);
+    engine::graphics::OpenGL::bind_texture_unit(0, m_scene_color_tex);
+    engine::graphics::OpenGL::bind_texture_unit(1, m_pingpong_tex[!horizontal]);
+    engine::graphics::OpenGL::draw_screen_quad();
+}
+
 void MainController::end_draw() {
     engine::core::Controller::get<engine::platform::PlatformController>()->swap_buffers();
 }
@@ -123,10 +174,13 @@ void MainController::draw_candles() {
         float angle = (float)i / (float)candle_count * 2.0f * 3.14159265f;
         float x = cos(angle) * radius;
         float z = sin(angle) * radius;
+
+        float flicker = 0.05f + 0.004f * sin(m_animation_time * 4.0f + i * 1.3f);
+
         shader->set_mat4(
             "model",
             translate(glm::mat4(1.0f), glm::vec3(x, 0.0f, z))
-            * scale(glm::mat4(1.0f), glm::vec3(0.05f))
+            * scale(glm::mat4(1.0f), glm::vec3(flicker))
         );
         candle->draw(shader);
     }
@@ -187,6 +241,15 @@ void MainController::update_light_controls() {
         }
     m_spot_intensity = glm::clamp(m_spot_intensity, 0.0f, 4.0f);
 
+}
+
+void MainController::init_bloom_buffers() {
+    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+    int width = platform->window()->width();
+    int height = platform->window()->height();
+
+    engine::graphics::OpenGL::init_hdr_framebuffer(width, height, m_hdr_fbo, m_scene_color_tex, m_bright_color_tex);
+    engine::graphics::OpenGL::init_pingpong_framebuffers(width, height, m_pingpong_fbo, m_pingpong_tex);
 }
 
 } // namespace app

@@ -93,6 +93,13 @@ public:
     */
     static uint32_t init_skybox_cube();
 
+
+    static void init_hdr_framebuffer(int width, int height, uint32_t &out_fbo, uint32_t &out_color_tex, uint32_t &out_bright_tex);
+    static void init_pingpong_framebuffers(int width, int height, uint32_t out_fbos[2], uint32_t out_textures[2]);
+    static uint32_t init_screen_quad();
+    static void draw_screen_quad();
+    static void bind_framebuffer(uint32_t fbo);
+    static void bind_texture_unit(uint32_t unit, uint32_t texture_id);
     /**
     * @brief Check if the shader with the `shader_id` compiled successfully.
     * @returns true if the shader compilation succeeded, false otherwise.

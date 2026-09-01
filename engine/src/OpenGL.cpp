@@ -80,6 +80,90 @@ uint32_t OpenGL::init_skybox_cube() {
     return skybox_vao;
 }
 
+void OpenGL::init_hdr_framebuffer(int width, int height, uint32_t &out_fbo, uint32_t &out_color_tex, uint32_t &out_bright_tex) {
+    CHECKED_GL_CALL(glGenFramebuffers, 1, &out_fbo);
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, out_fbo);
+
+    uint32_t color_attachments[2];
+    CHECKED_GL_CALL(glGenTextures, 2, color_attachments);
+    for (unsigned int i = 0; i < 2; ++i) {
+        CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, color_attachments[i]);
+        CHECKED_GL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, color_attachments[i], 0);
+    }
+    out_color_tex = color_attachments[0];
+    out_bright_tex = color_attachments[1];
+
+    uint32_t rbo;
+    CHECKED_GL_CALL(glGenRenderbuffers, 1, &rbo);
+    CHECKED_GL_CALL(glBindRenderbuffer, GL_RENDERBUFFER, rbo);
+    CHECKED_GL_CALL(glRenderbufferStorage, GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    CHECKED_GL_CALL(glFramebufferRenderbuffer, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    unsigned int attachments[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    CHECKED_GL_CALL(glDrawBuffers, 2, attachments);
+
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
+}
+
+void OpenGL::init_pingpong_framebuffers(int width, int height, uint32_t out_fbos[2], uint32_t out_textures[2]) {
+    CHECKED_GL_CALL(glGenFramebuffers, 2, out_fbos);
+    CHECKED_GL_CALL(glGenTextures, 2, out_textures);
+    for (unsigned int i = 0; i < 2; ++i) {
+        CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, out_fbos[i]);
+        CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, out_textures[i]);
+        CHECKED_GL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, out_textures[i], 0);
+    }
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
+}
+
+static uint32_t g_screen_quad_vao = 0;
+
+uint32_t OpenGL::init_screen_quad() {
+    if (g_screen_quad_vao != 0) {
+        return g_screen_quad_vao;
+    }
+    float quad_vertices[] = {
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f,
+    };
+    uint32_t vao, vbo;
+    CHECKED_GL_CALL(glGenVertexArrays, 1, &vao);
+    CHECKED_GL_CALL(glGenBuffers, 1, &vbo);
+    CHECKED_GL_CALL(glBindVertexArray, vao);
+    CHECKED_GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, vbo);
+    CHECKED_GL_CALL(glBufferData, GL_ARRAY_BUFFER, sizeof(quad_vertices), quad_vertices, GL_STATIC_DRAW);
+    CHECKED_GL_CALL(glEnableVertexAttribArray, 0);
+    CHECKED_GL_CALL(glVertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    CHECKED_GL_CALL(glEnableVertexAttribArray, 1);
+    CHECKED_GL_CALL(glVertexAttribPointer, 1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    g_screen_quad_vao = vao;
+    return vao;
+}
+
+void OpenGL::draw_screen_quad() {
+    uint32_t vao = init_screen_quad();
+    CHECKED_GL_CALL(glBindVertexArray, vao);
+    CHECKED_GL_CALL(glDrawArrays, GL_TRIANGLES, 0, 6);
+}
+
+void OpenGL::bind_framebuffer(uint32_t fbo) {
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, fbo);
+}
+
 bool OpenGL::shader_compiled_successfully(uint32_t shader_id) {
     int success;
     CHECKED_GL_CALL(glGetShaderiv, shader_id, GL_COMPILE_STATUS, &success);
@@ -204,6 +288,11 @@ int32_t stbi_number_of_channels_to_gl_format(int32_t number_of_channels) {
         case 4: return GL_RGBA;
         default: RG_SHOULD_NOT_REACH_HERE("Unknown channels {}", number_of_channels);
     }
+}
+
+void OpenGL::bind_texture_unit(uint32_t unit, uint32_t texture_id) {
+    CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE0 + unit);
+    CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, texture_id);
 }
 
 };// namespace engine::graphics

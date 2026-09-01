@@ -1,18 +1,21 @@
-# Piano in an Abandoned Concert Hall
+# Piano in an Abandoned Library
 
 mi22184 - Marina Neskovic
 
-An abandoned concert hall, at night. At the center of the scene is a grand
-piano, surrounded by hundreds of candles whose flames light the space with
-a warm glow. Dramatic spotlight beams fall from above, cutting through a
-faint haze, as if someone had just left the stage mid-performance.
+An abandoned, magical library at night. At the center of the scene is a
+grand piano, surrounded by a ring of candles whose flames light the space
+with a warm glow. A dramatic spotlight beam falls from above, cutting
+through the dark, vaulted stone hall lined with bookshelves, arched
+windows, and a chandelier - as if someone had just left the piano
+mid-performance.
 
 ## Controls
 
-W, A, S, D -> move camera  
-Mouse -> rotate camera  
-Scroll -> zoom  
-F -> toggle flashlight / spotlight  
+W, A, S, D -> move camera
+Mouse -> rotate camera
+Scroll -> zoom
+Arrow Up/Down -> increase/decrease candle (point) light intensity
+Arrow Left/Right -> increase/decrease spotlight intensity
 ESC -> exit application
 
 ## Features
@@ -20,7 +23,7 @@ ESC -> exit application
 ### Fundamental:
 - [x] Model with lighting
 - [x] Two types of lighting with customizable colors and movement through GUI or ACTIONS
-- [ ] Player approaches the piano -> AFTER 2 SECONDS -> Triggers -> spotlight intensifies and changes color -> AFTER 3 SECONDS -> Triggers -> candles around the piano light up one by one
+- [x] Player enters the scene -> AFTER 3 SECONDS -> Triggers -> spotlight turns on/intensifies -> AFTER 3 MORE SECONDS -> Triggers -> candle/lamp light intensifies
 
 ### Group A:
 - [ ] Bloom with the use of HDR
@@ -32,11 +35,9 @@ ESC -> exit application
 - [ ] ...
 
 ## Models:
-[Piano](https://poly.pizza/m/1YoE664mJTd)  
+[Piano - Grand Piano by Raphael Baget (CC Attribution)](https://sketchfab.com/3d-models/grand-piano-47f1bb5bdc3348768b86915b8070055f)
 [Candle](https://poly.pizza/m/aH83BlSFxJu)
+[Wizard's Library by Dawnstar-Chronicles (CC Attribution)](https://sketchfab.com/3d-models/wizards-library-610008a8dc81492f8d8f6bbdea2bc87b)
 
 ## Textures
-(included with the models)
-
-## Skybox
-Custom-generated night sky (no third-party assets)
+(included with the models; piano and library textures brightness-corrected)
